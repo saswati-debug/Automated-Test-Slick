@@ -1,0 +1,22 @@
+{
+  "name": "automated-test-slick",
+  "version": "1.0.0",
+  "description": "",
+  "main": "playwright.config.js",
+  "scripts": {
+    "test:staging": "ENV=staging npx playwright test",
+    "test:production": "ENV=production npx playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.56.1"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "playwright": "^1.56.1",
+    "playwright-core": "^1.56.1"
+  }
+}
