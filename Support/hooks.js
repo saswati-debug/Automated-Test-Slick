@@ -14,7 +14,7 @@ async function setup() {
   const env = process.env.ENV;
   console.log(`Setting up tests for environment: ${env}`);
   const browserType = { chromium, firefox, webkit }[DEFAULTS.browser];
-  browser = await browserType.launch({ headless: DEFAULTS.headless });
+  browser = await browserType.launch({ headless: DEFAULTS.headless === 'true' });
   context = await browser.newContext();
   page = await context.newPage();
   await page.goto(DEFAULTS.baseURL);

@@ -1,17 +1,15 @@
-const dotenv = require('dotenv');
-const path = require('path');
+import { config } from 'dotenv';
+import { resolve } from 'path';
 
 // Load the appropriate .env file based on the ENV variable
-const envFile = process.env.ENV === "production" ? '.env.production' : '.env.staging';
+const envFile = process.env.ENV === '.env.production' ? '.env.production' : '.env.staging';
 console.log(`Current ENV: ${process.env.ENV}`);
 console.log(`Loading environment file: ${envFile}`);
-dotenv.config({ path: path.resolve(__dirname, envFile) });
+config({ path: resolve(__dirname, envFile) });
 
-const { defineConfig } = require('@playwright/test');
+import { defineConfig } from '@playwright/test';
 
-//console.log(`Current ENV: ${process.env.ENV}`);
-
-module.exports = defineConfig({
+export default defineConfig({
   testDir: 'Tests',
   timeout: 30000,
   expect: {

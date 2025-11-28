@@ -13,7 +13,8 @@ class LoginPage {
   }
 
   async navigateToLoginPage(baseURL) {
-    await this.page.goto(process.env.BASE_URL);
+    baseURL = process.env.BASE_URL
+    await this.page.goto(baseURL);
   }
 
   async login(username, password) {
