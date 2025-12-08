@@ -75,7 +75,7 @@ class CalendarPage {
       await this.page.getByRole('button', { name: 'Save booking' }).click();
       await expect(this.sideBar).not.toBeVisible();
       await expect(appointmentDetails).toBeVisible();
-      await this.deleteAppointment();
+      await this.deleteAppointment(clientName);
       
     }
 
@@ -98,15 +98,20 @@ class CalendarPage {
       await expect(appointmentDetails).toBeVisible();
     }
 
-    async deleteAppointment() {
-      var appointmentDetails = this.page.locator(".cal-client").filter({ HasText: 'Auto Test Client'}).last();
+    async deleteAppointment(clientName) {
+      
+      var appointmentDetails = this.page.locator(".cal-client").filter({ HasText: clientName}).first();
+      if (!await appointmentDetails.isVisible()) {
+        this.bookAnAppointment(clientName, 'Colouring', 'Full Head Highlights', 'John Doe');
+      }
+      else{
       await appointmentDetails.click();
       await expect(this.appointmentSidebar).toBeVisible();
       await this.manageAptButton.click();
       await this.deleteAptButton.click();
       await this.page.getByText('DELETE BOOKING').click();
       await expect(appointmentDetails).not.toBeVisible();
-    }
+    }}
 
     async rescheduleAppointment(clientName, date) {
       var appointmentDetails = this.page.locator(".cal-client").filter({ HasText: clientName}).first();

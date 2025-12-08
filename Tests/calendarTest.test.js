@@ -52,5 +52,11 @@ test('Reschedule an existing appointment', async ({ page }) => {
   
 });
 
+test('Delete an existing appointment', async ({ page }) => {
+  const calendarPage = new CalendarPage(page);
+  await calendarPage.searchYourSalon('Sas\'s Salon');
+  await calendarPage.deleteAppointment('Appointmenttoreschedule');
+});
+
 
 
