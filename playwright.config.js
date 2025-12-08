@@ -2,7 +2,11 @@ import { config } from 'dotenv';
 import { resolve } from 'path';
 
 // Load the appropriate .env file based on the ENV variable
-const envFile = process.env.ENV === '.env.test' ? '.env.production' : '.env.staging';
+const envFile = process.env.ENV === 'production'
+  ? '.env.production'
+  : process.env.ENV === 'staging'
+  ? '.env.staging'
+  : '.env.test'; // Default to .env.test if ENV is not set
 console.log(`Current ENV: ${process.env.ENV}`);
 console.log(`Loading environment file: ${envFile}`);
 config({ path: resolve(__dirname, envFile) });

@@ -17,12 +17,18 @@ class CalendarPage {
     this.closeSideBarBtn = page.locator(".close-ico");
     this.exitBtn = page.locator('.ServiceSelection_buttonSpace__E7zHf').filter({ hasText: 'EXIT' });
     this.clientList = page.locator(".search-dropdown-results");
-    this.serviceCategories = page.locator("div[data-tag='ServiceSelection__service-selection-content']").first();
+    this.serviceCategories = page.locator(".category-name");
+    this.serviceCatItem = page.locator("[data-bem='ServiceItem__name']");
     this.serviceList = page.locator("div.service-list");
-    this.datePicker = page.locator("#bookingDayPicker");
+    this.datePicker = page.locator(".time-btn-container .the-time-shape");
     this.selectStylistBtn = page.getByText("Select Stylist");
     this.selectTimeBtn = page.getByText("Select Time");
     this.sideBar = page.locator(".BookingWindow");
+    this.manageAptButton = page.locator("[data-bem='ManageAppointmentButton__manage']");
+    this.deleteAptButton = page.locator("[data-tag='ManageAppointmentButton__item-delete']");
+    this.resheduleAptButton = page.locator("[data-tag='ManageAppointmentButton__item-reschedule']");
+    this.appointmentSidebar = page.locator("[data-bem ='Sidebar__toolbar']");
+    this.selectedCalendarDate = page.locator(".selected-date");
   }
     async navigateToCalendarPage(calendarURL) {
     calendarURL = process.env.Calendar_URL;
@@ -52,21 +58,67 @@ class CalendarPage {
       await this.closeSideBarBtn.click();
     }
 
-    async bookAnAppointment(clientName, serviceName, stylistName, date, time) {
+    async bookAndDelAnAppointment(clientName, serviceCategory, serviceName, stylistName) {
+      var appointmentDetails = this.page.locator(".cal-client").filter({ HasText: clientName}).first();
       await this.newButton.click();
       await this.appointmentSelection.click();
       await this.clientSearchBox.fill(clientName);
       await expect(this.clientList).toContainText(clientName);
       await this.page.getByRole('button', { name: clientName }).first().click();
-      await this.serviceCategories.click();
-      await this.serviceList.filter({ hasText: serviceName }).click();
+      await expect(this.serviceList).toBeVisible();
+      await this.serviceCategories.filter({ hasText: serviceCategory}).click();
+      await this.serviceCatItem.filter({ hasText: serviceName}).first().click();
       await this.selectStylistBtn.click();
-      await this.page.getByRole('button', { name: stylistName }).click();
-      await this.datePicker.fill(date);
+      await this.page.getByRole('button', { name: stylistName }).nth(2).click();
       await this.selectTimeBtn.click();
-      await this.page.getByRole('button', { name: time }).click();
-      await this.page.getByRole('button', { name: 'BOOK APPOINTMENT' }).click();
-      await expect(this.sideBar).toContainText('Appointment booked successfully');
+      await this.datePicker.last().click();
+      await this.page.getByRole('button', { name: 'Save booking' }).click();
+      await expect(this.sideBar).not.toBeVisible();
+      await expect(appointmentDetails).toBeVisible();
+      await this.deleteAppointment();
+      
+    }
+
+    async bookAnAppointment (clientName, serviceCategory, serviceName, stylistName) {
+      var appointmentDetails = this.page.locator(".cal-client").filter({ HasText: clientName}).first();
+      await this.newButton.click();
+      await this.appointmentSelection.click();
+      await this.clientSearchBox.fill(clientName);
+      await expect(this.clientList).toContainText(clientName);
+      await this.page.getByRole('button', { name: clientName }).first().click();
+      await expect(this.serviceList).toBeVisible();
+      await this.serviceCategories.filter({ hasText: serviceCategory}).click();
+      await this.serviceCatItem.filter({ hasText: serviceName}).first().click();
+      await this.selectStylistBtn.click();
+      await this.page.getByRole('button', { name: stylistName }).nth(2).click();
+      await this.selectTimeBtn.click();
+      await this.datePicker.last().click();
+      await this.page.getByRole('button', { name: 'Save booking' }).click();
+      await expect(this.sideBar).not.toBeVisible();
+      await expect(appointmentDetails).toBeVisible();
+    }
+
+    async deleteAppointment() {
+      var appointmentDetails = this.page.locator(".cal-client").filter({ HasText: 'Auto Test Client'}).last();
+      await appointmentDetails.click();
+      await expect(this.appointmentSidebar).toBeVisible();
+      await this.manageAptButton.click();
+      await this.deleteAptButton.click();
+      await this.page.getByText('DELETE BOOKING').click();
+      await expect(appointmentDetails).not.toBeVisible();
+    }
+
+    async rescheduleAppointment(clientName, date) {
+      var appointmentDetails = this.page.locator(".cal-client").filter({ HasText: clientName}).first();
+      await appointmentDetails.click();
+      await expect(this.appointmentSidebar).toBeVisible();
+      await this.manageAptButton.click();
+      await this.page.getByRole('button', { name: 'Reschedule', exact: true }).click();
+      await this.page.getByRole('option', { name: date}).click();
+      await this.page.getByRole('button', { name: 'Save booking' }).click();
+      await expect(this.sideBar).not.toBeVisible();
+      await expect(this.selectedCalendarDate).toContainText(date.replace('day-', ''));
+      await expect(appointmentDetails).toBeVisible();
     }
   }
 
