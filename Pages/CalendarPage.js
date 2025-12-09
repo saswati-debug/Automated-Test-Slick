@@ -79,8 +79,9 @@ class CalendarPage {
       
     }
 
-    async bookAnAppointment (clientName, serviceCategory, serviceName, stylistName) {
+    async bookAnAppointment(clientName, serviceCategory, serviceName, stylistName) {
       var appointmentDetails = this.page.locator(".cal-client").filter({ HasText: clientName}).first();
+      await expect(this.newButton).toBeVisible();
       await this.newButton.click();
       await this.appointmentSelection.click();
       await this.clientSearchBox.fill(clientName);
@@ -99,19 +100,31 @@ class CalendarPage {
     }
 
     async deleteAppointment(clientName) {
-      
-      var appointmentDetails = this.page.locator(".cal-client").filter({ HasText: clientName}).first();
-      if (!await appointmentDetails.isVisible()) {
-        this.bookAnAppointment(clientName, 'Colouring', 'Full Head Highlights', 'John Doe');
-      }
-      else{
-      await appointmentDetails.click();
-      await expect(this.appointmentSidebar).toBeVisible();
-      await this.manageAptButton.click();
-      await this.deleteAptButton.click();
-      await this.page.getByText('DELETE BOOKING').click();
-      await expect(appointmentDetails).not.toBeVisible();
-    }}
+  // Locate the appointment details for the given client
+  const appointmentDetails = this.page.locator(".cal-client").filter({ hasText: clientName });
+
+  // Check if the appointment is visible
+  const isAppointmentVisible = await appointmentDetails.isVisible();
+
+  if (!isAppointmentVisible) {
+    // If the appointment is not visible, create a new appointment
+    console.log(`No appointment found for ${clientName}. Creating a new appointment.`);
+    await this.bookAnAppointment(clientName, 'Colouring', 'Full Head Highlights', 'John Doe');
+  }
+else {
+    console.log(`Appointment found for ${clientName}. Proceeding to delete.`);
+  }
+  // Proceed to delete the appointment
+  console.log(`Deleting appointment for ${clientName}.`);
+  await appointmentDetails.click();
+  await expect(this.appointmentSidebar).toBeVisible();
+  await this.manageAptButton.click();
+  await this.deleteAptButton.click();
+  await this.page.getByText('DELETE BOOKING').click();
+
+  // Verify the appointment is no longer visible
+  await expect(appointmentDetails).not.toBeVisible();
+}
 
     async rescheduleAppointment(clientName, date) {
       var appointmentDetails = this.page.locator(".cal-client").filter({ HasText: clientName}).first();
