@@ -15,7 +15,7 @@ screenshots/
 .env
 .env.staging
 .env.production
-.env.test
+.env.qa
 
 # VS Code settings
 .vscode/
