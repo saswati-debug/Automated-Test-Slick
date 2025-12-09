@@ -6,7 +6,7 @@ const envFile = process.env.ENV === 'production'
   ? '.env.production'
   : process.env.ENV === 'staging'
   ? '.env.staging'
-  : '.env.test'; // Default to .env.test if ENV is not set
+  : '.env.staging'; // Default to .env.test if ENV is not set
 console.log(`Current ENV: ${process.env.ENV}`);
 console.log(`Loading environment file: ${envFile}`);
 config({ path: resolve(__dirname, envFile) });
