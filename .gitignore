@@ -9,12 +9,13 @@ test-results/
 playwright-report/
 trace.zip
 *.log
+screenshots/
 
 # Environment files
 .env
 .env.staging
 .env.production
-.env.local
+.env.test
 
 # VS Code settings
 .vscode/
