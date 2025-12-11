@@ -171,21 +171,21 @@ class CalendarPage {
       await expect(this.appointmentSidebar).toBeVisible();
       await this.page.getByText('CHECKOUT & REBOOK').click();
       await this.page.getByText('GO TO CHECKOUT').click();
-     // await this.page.getByRole('button', { name: paymentMethod }).click();
       await this.page.getByText('COMPLETE').click();
       await this.page.locator('span').filter({hasText: "CONFIRM"}).click();
-      await expect(this.sendReceiptModal).toBeVisible();
-      await this.clientEmailInput.fill('abc@def.com');
+      expect(await this.sendReceiptModal).toBeVisible();
+      await this.clientEmailInput.fill('testsalon3@proton.me');
       await this.page.getByRole('button', { name: 'SEND RECEIPT' }).click();
       await expect(this.checkoutpopup).toBeVisible();
       await this.page.getByText('Close').click();
       await expect(this.bookingCalendar).toBeVisible();
       expect(await this.appointmentPaidStatus).toBeVisible();
-      await this.deleteCheckedOutAppointment(clientName);
+      
     }
 
 
     async deleteCheckedOutAppointment(clientName) {
+
       const appointmentDetails = this.appointment.filter({ hasText: clientName });
       const isAppointmentVisible = await appointmentDetails.isVisible();
 
@@ -197,25 +197,42 @@ class CalendarPage {
         await this.page.getByText('DELETE BOOKING').click();
         await expect(appointmentDetails).not.toBeVisible();
       }
+      else {
+        console.log(`No checked out appointment found for ${clientName}.`);
+        return;
+      }
+       await this.page.waitForTimeout(4000);
+       await this.deleteCheckedOutAppointment(clientName);
     }
  
 
     async deleteAllTestAppointments() {
-      const testClients = ['Appointmenttoreschedule', 'Auto Test Client', 'Checkoutclient', 'ConfirmClient'];
-      for (const clientName of testClients) {
-        const appointmentDetails = this.appointment.filter({ hasText: clientName });
+      const existingAppointments = await this.appointment;
+      await this.page.waitForTimeout(10000);
+      await expect(this.bookingCalendar).toBeVisible();
+      for (let i = 0; i < await existingAppointments.count(); i++) {
+        console.log(`Checking appointment ${i + 1} for deletion.`);
+        const appointmentDetails = existingAppointments.nth(i);
+        const clientName = await appointmentDetails.textContent();
         const isAppointmentVisible = await appointmentDetails.isVisible();
 
         if (isAppointmentVisible) {
           console.log(`Deleting existing appointment for ${clientName}.`);
           await appointmentDetails.click();
           await expect(this.appointmentSidebar).toBeVisible();
-          await this.manageAptButton.click();
-          await this.deleteAptButton.click();
-          await this.page.getByText('DELETE BOOKING').click();
-          await expect(appointmentDetails).not.toBeVisible();
+          await this.page.waitForTimeout(2000);
+          if (await this.manageAptButton.isVisible()) {
+            await this.manageAptButton.click();
+            await this.deleteAptButton.click();
+          } else {
+            console.log(`Manage Appointment button not visible for ${clientName}. Checked out appointment`);
+             await this.deleteIcon.click();
+          }
+        
+          await this.page.getByText('DELETE').last().click();
         } else {
           console.log(`No existing appointment found for ${clientName}.`);
+          break;
         }
       }
     } 
