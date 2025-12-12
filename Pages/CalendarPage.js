@@ -33,9 +33,10 @@ class CalendarPage {
     this.clientEmailInput = page.getByPlaceholder('Client Email Address');
     this.checkoutpopup = page.locator(".chk-popup-success-text");
     this.appointmentPaidStatus = page.locator("[data-appointment-status = 'paid']");
-    this.appointment = page.locator(".cal-client");
-    this.deleteIcon = page.locator("[data-bem='DeleteAppointmentButton']").first();
+    this.appointment = page.locator("div[id*='appointment_']");
+    this.deleteIcon = page.getByRole("button").nth(3);
     this.appointmentHeader = page.locator("[data-bem='AppointmentHeader']");
+    this.closeWizardBtn = page.locator(".Wizard_closeButtonContainer__GFC2i");
   }
     async navigateToCalendarPage(calendarURL) {
     calendarURL = process.env.Calendar_URL;
@@ -207,10 +208,12 @@ class CalendarPage {
  
 
     async deleteAllTestAppointments() {
-      const existingAppointments = await this.appointment;
+      const existingAppointments = await this.appointment; 
+      console.log(`Total existing appointments: ${await existingAppointments.count()}`);
       await this.page.waitForTimeout(10000);
       await expect(this.bookingCalendar).toBeVisible();
-      for (let i = 0; i < await existingAppointments.count(); i++) {
+      for (let i = 0; i <= await existingAppointments.count(); i++) {
+        var initialCount = await existingAppointments.count();
         console.log(`Checking appointment ${i + 1} for deletion.`);
         const appointmentDetails = existingAppointments.nth(i);
         const clientName = await appointmentDetails.textContent();
@@ -230,6 +233,8 @@ class CalendarPage {
           }
         
           await this.page.getByText('DELETE').last().click();
+          expect(await this.bookingCalendar).toBeVisible();
+          expect(await appointmentDetails.count()).toBeLessThan(await initialCount);
         } else {
           console.log(`No existing appointment found for ${clientName}.`);
           break;
@@ -248,7 +253,31 @@ class CalendarPage {
       await expect(this.appointmentHeader).not.toContainText('Unconfirmed', { timeout: 5000 });
       await this.deleteAppointment(clientName);
     }
-    
+
+    async cancelAppointment(clientName) { 
+      var appointmentDetails = this.appointment.filter({ HasText: clientName}).first();
+      await appointmentDetails.click();
+      await expect(this.appointmentSidebar).toBeVisible();
+      await this.manageAptButton.click();
+      await this.page.getByRole('button', { name: 'Cancel', exact: true }).click();
+      await this.page.getByText('CANCEL APPOINTMENT').click();
+      await this.closeWizardBtn.click();
+      await expect(this.bookingCalendar).toBeVisible();
+      await appointmentDetails.click();
+      await expect(this.appointmentSidebar).toBeVisible();
+      await expect(this.appointmentHeader).toBeVisible();
+      await expect(this.appointmentHeader).toContainText('Cancelled');
+      await this.page.screenshot({ path: `screenshots/appointment_cancel_${clientName}.png` });
+      //await expect(appointmentDetails).not.toBeVisible();
+    }
+
+    async createMultipleAppointments(clientName, numberOfAppointments) {
+      for (let i = 1; i <= numberOfAppointments; i++) {
+        const uniqueClientName = `${clientName}_${i}`;
+        console.log(`Creating appointment for ${uniqueClientName}`);
+        await this.bookAnAppointment(uniqueClientName, 'Colouring', 'Full Head Highlights', 'John Doe');
+      }
+    }
   }
 
 module.exports = CalendarPage;

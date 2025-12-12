@@ -82,10 +82,16 @@ test('Confirm a booked appointment', async ({ page }) => {
   await calendarPage.confirmAppointment('Confirmclient');
 });
 
-test.skip('Cancel a booked appointment', async ({ page }) => {
+test('Cancel a booked appointment', async ({ page }) => {
   const calendarPage = new CalendarPage(page);
   await calendarPage.searchYourSalon('Sas\'s Salon');
   await calendarPage.bookAnAppointment('Cancelclient', 'Colouring', 'Full Head Highlights', 'John Doe');
   await calendarPage.cancelAppointment('Cancelclient');
 });
 
+test('Create multiple appointments for a client', async ({ page }) => {
+  test.setTimeout(120000);
+  const calendarPage = new CalendarPage(page);
+  await calendarPage.searchYourSalon('Sas\'s Salon');
+  await calendarPage.createMultipleAppointments('Multiappclient', 3);
+});
