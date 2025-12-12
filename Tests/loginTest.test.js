@@ -14,27 +14,27 @@ test.afterEach(async () => {
   await hooks.teardown();
 });
 
-test('Validate Slick Webpage visibility', async () => {
+test('@smoke @regression Validate Slick Webpage visibility', async () => {
     await page.goto(process.env.BASE_URL);
     const title = await page.title();
     expect(title).toBe('SLICK (#/) (DEVELOPMENT)');
 });
 
-test('Successful login with valid credentials', async () => {
+test('@smoke @regression Successful login with valid credentials', async () => {
     const loginPage = new LoginPage(page);
     await loginPage.navigateToLoginPage(process.env.BASE_URL);
     await loginPage.login(process.env.VALID_USERNAME, process.env.VALID_PASSWORD);
     await expect(page).toHaveURL(`${process.env.BASE_URL}salon/#/salon`);
 });
 
-test('Unsuccessful login with invalid credentials', async () => {
+test('@smoke @regression Unsuccessful login with invalid credentials', async () => {
     test.setTimeout = 30000;
     const loginPage = new LoginPage(page);
     await loginPage.navigateToLoginPage(process.env.BASE_URL);
     await loginPage.login('invalidUser', 'invalidPass');
 });
 
-test('Unsuccessful login with empty credentials', async () => {
+test('@regression Unsuccessful login with empty credentials', async () => {
     const loginPage = new LoginPage(page);
     await loginPage.navigateToLoginPage(process.env.BASE_URL);
     await loginPage.blankLoginAttempt('', '');

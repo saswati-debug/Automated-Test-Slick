@@ -61,7 +61,7 @@ class CalendarPage {
   async searchYourSalon(salonName) {
     await this.salonSearchbox.fill(salonName);
     await this.page.getByRole("button", { name: salonName }).first().click();
-    //await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(6000);
     await expect(this.bookingCalendar).toBeVisible();
     expect(await this.salonName).toContainText(salonName);
   }
@@ -339,6 +339,43 @@ class CalendarPage {
       numberOfAppointments
     );
   }
+
+  async logoutFromCalendarPage() {
+    await this.page.getByText("Menu").click();
+    await this.page.getByRole("button", { name: "LOGOUT" }).click();
+    await expect(this.page).toHaveURL(process.env.LOGIN_URL);
+  } 
+
+  async dragAndDropAppointment(clientName, targetTime) {
+    var appointmentDetails = this.appointment
+      .filter({ HasText: clientName })
+      .first();
+    const targetCell = this.page.locator(
+      `div[data-time*= "${targetTime}"]`
+    ).first();
+    if (await targetCell.isVisible()) {
+       const sourceBox = await appointmentDetails.boundingBox();
+       const targetBox = await targetCell.boundingBox();
+
+        await this.page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2);
+        await this.page.mouse.down();
+        await this.page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, { steps: 15 });
+        await this.page.mouse.up(); 
+        await appointmentDetails.click();
+        await expect(this.appointmentSidebar).toBeVisible();
+        const timeText = await this.appointmentSidebar.locator("[data-bem='BookingTimeSpan']").innerText();
+        expect(timeText).toContain(targetTime);
+    } else {
+      throw new Error("Target cell not found for drag and drop.");
+    }
+  }
+
+  async sendSMSAfterConfirmingChanges(clientName) {
+    var appointmentDetails = this.appointment
+      .filter({ HasText: clientName })
+      .first();
+    await appointmentDetails.click();
+ }
 }
 
 module.exports = CalendarPage;
