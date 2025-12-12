@@ -30,11 +30,7 @@ test('Validate correct salon is visible', async ({ page }) => {
   const calendarPage = new CalendarPage(page);
   await calendarPage.searchYourSalon('Sas\'s Salon');
 });
-test('Delete all test appointments before tests', async ({ page }) => {
-  const calendarPage = new CalendarPage(page);
-  await calendarPage.searchYourSalon('Sas\'s Salon');
-  await calendarPage.deleteAllTestAppointments();
-});
+
 
 test('Book an appointment with a new client and delete appointment', async ({ page }) => {
   test.setTimeout(60000);
@@ -87,6 +83,7 @@ test('Cancel a booked appointment', async ({ page }) => {
   await calendarPage.searchYourSalon('Sas\'s Salon');
   await calendarPage.bookAnAppointment('Cancelclient', 'Colouring', 'Full Head Highlights', 'John Doe');
   await calendarPage.cancelAppointment('Cancelclient');
+  await calendarPage.deleteCheckedOutAppointment('Cancelclient');
 });
 
 test('Create multiple appointments for a client', async ({ page }) => {
@@ -94,4 +91,10 @@ test('Create multiple appointments for a client', async ({ page }) => {
   const calendarPage = new CalendarPage(page);
   await calendarPage.searchYourSalon('Sas\'s Salon');
   await calendarPage.createMultipleAppointments('Multiappclient', 3);
+});
+
+test('Delete all test appointments after tests', async ({ page }) => {
+  const calendarPage = new CalendarPage(page);
+  await calendarPage.searchYourSalon('Sas\'s Salon');
+  await calendarPage.deleteAllTestAppointments();
 });
