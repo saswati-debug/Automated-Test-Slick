@@ -102,7 +102,8 @@ test('@smoke @regression Delete all test appointments after tests', async ({ pag
 test('@smoke @regression Send SMS after confirming changes for drag and drop', async ({ page }) => {
   const calendarPage = new CalendarPage(page);
   await calendarPage.searchYourSalon('Sas\'s Salon');
-  await calendarPage.dragAndDropAppointment('Auto Test Client','2025-12-12T11:45');
+  await calendarPage.bookAnAppointment('Auto Test Client', 'Colouring', 'Full Head Highlights', 'John Doe');
+  await calendarPage.dragAndDropAppointment('Auto Test Client','2025-12-13T16:45');
   //await calendarPage.sendSMSAfterConfirmingChanges('Confirmclient');
 });
 
