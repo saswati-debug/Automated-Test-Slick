@@ -61,6 +61,19 @@ test('@smoke @regression Delete an existing appointment', async ({ page }) => {
   await calendarPage.deleteAppointment('Appointmenttoreschedule');
 });
 
+test('@smoke @regression Create multiple appointments for a client', async ({ page }) => {
+  test.setTimeout(120000);
+  const calendarPage = new CalendarPage(page);
+  await calendarPage.searchYourSalon('Sas\'s Salon');
+  await calendarPage.createMultipleAppointments('Multiappclient', 3);
+});
+
+test('@smoke @regression Delete all test appointments after tests', async ({ page }) => {
+  const calendarPage = new CalendarPage(page);
+  await calendarPage.searchYourSalon('Sas\'s Salon');
+  await calendarPage.deleteAllTestAppointments();
+});
+
 test('@smoke @regression Book an appointment and checkout successfully', async ({ page }) => {
   test.setTimeout(60000);
   const calendarPage = new CalendarPage(page);
@@ -86,25 +99,13 @@ test('@smoke @regression Cancel a booked appointment', async ({ page }) => {
   await calendarPage.deleteCheckedOutAppointment('Cancelclient');
 });
 
-test('@smoke @regression Create multiple appointments for a client', async ({ page }) => {
-  test.setTimeout(120000);
-  const calendarPage = new CalendarPage(page);
-  await calendarPage.searchYourSalon('Sas\'s Salon');
-  await calendarPage.createMultipleAppointments('Multiappclient', 3);
-});
-
-test('@smoke @regression Delete all test appointments after tests', async ({ page }) => {
-  const calendarPage = new CalendarPage(page);
-  await calendarPage.searchYourSalon('Sas\'s Salon');
-  await calendarPage.deleteAllTestAppointments();
-});
-
 test('@smoke @regression Send SMS after confirming changes for drag and drop', async ({ page }) => {
   const calendarPage = new CalendarPage(page);
   await calendarPage.searchYourSalon('Sas\'s Salon');
-  await calendarPage.bookAnAppointment('Auto Test Client', 'Colouring', 'Full Head Highlights', 'John Doe');
-  await calendarPage.dragAndDropAppointment('Auto Test Client','2025-12-13T16:45');
-  //await calendarPage.sendSMSAfterConfirmingChanges('Confirmclient');
+  await calendarPage.bookAnAppointment('Checkoutclient', 'Colouring', 'Full Head Highlights', 'John Doe');
+  await calendarPage.dragAndDropAppointment('Checkoutclient','2025-12-15T16:45');
+  await calendarPage.deleteAppointment('Checkoutclient');
+
 });
 
 test('@regression Logout from Calendar Page', async ({ page }) => {

@@ -11,6 +11,8 @@ class LoginPage {
     this.passwordInput = page.locator("input[data-pw-id='PasswordInput']");
     this.loginButton = page.locator("button[data-pw-id ='login']"); 
     this.errorMessage = page.getByText("Password needs to be at least 8 characters"); 
+    this.menuButton = page.locator("[data-bem ='SidebarMenu__button']");
+    this.changeLocationBtn = page.getByText("Change Location");
   }
 
   async navigateToLoginPage(baseURL) {
@@ -39,6 +41,13 @@ class LoginPage {
     await this.usernameInput.fill(username);
     await this.passwordInput.fill(password);
     await expect(this.loginButton).toBeDisabled();
+  }
+
+  async singleSalonLoginValidation(salonIdentifier) {
+    const salonName = this.page.locator('div[class*="SalonName_salonName"]');
+    await expect(salonName).toHaveText(salonIdentifier);
+    await this.menuButton.click();
+    await expect(this.changeLocationBtn).not.toBeVisible();
   }
 }
 

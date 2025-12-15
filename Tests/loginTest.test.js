@@ -39,3 +39,14 @@ test('@regression Unsuccessful login with empty credentials', async () => {
     await loginPage.navigateToLoginPage(process.env.BASE_URL);
     await loginPage.blankLoginAttempt('', '');
 }); 
+
+test('@smoke @regression Login for user with single salon access', async() => {
+    const salonList = page.locator("div.salon-list");
+    const loginPage = new LoginPage(page);
+    await loginPage.navigateToLoginPage(process.env.BASE_URL);
+    await loginPage.login(process.env.SINGLE_SALON_USER, process.env.SINGLE_SALON_PASSWORD);
+    await expect(salonList).not.toBeVisible();
+    await loginPage.singleSalonLoginValidation("OneSalonAccess");
+});
+
+test

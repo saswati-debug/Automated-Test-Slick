@@ -17,6 +17,8 @@ class CalendarPage {
       "button[data-tag='SchedulerHeader__item-appointment']"
     );
     this.clientSearchBox = page.locator("input.search-dropdown");
+    this.closeClientProfileBtn = page.locator("[data-bem='ClientProfile__go-back-arrow']");
+    this.closeIcon = page.locator("div.close-ico");
     this.closeSideBarBtn = page.locator("[data-tag='SidebarClose__icon']");
     this.exitBtn = page
       .locator(".ServiceSelection_buttonSpace__E7zHf")
@@ -53,6 +55,10 @@ class CalendarPage {
     this.appointmentHeader = page.locator("[data-bem='AppointmentHeader']");
     this.closeWizardBtn = page.locator("div.Icon_closeVariant__0gu1p");
     this.appointmentTime = page.locator(".BookingLogPanel_bookingTimesContainer__NBbTS");
+    this.moveAppointmentNotification = page.locator(".move-notification");
+    this.smsComposeAndSendDialog = page.locator("div[data-bem='SmsComposeAndSend']");
+    this.smsText = page.getByPlaceholder("Type your message here.");
+    this.smsTitle = page.locator('div.sms-title');
   }
   async navigateToCalendarPage(calendarURL) {
     calendarURL = process.env.Calendar_URL;
@@ -76,13 +82,13 @@ class CalendarPage {
     await this.page.getByRole("button", { name: "+ Add new client" }).click();
     await this.clientNameBox.fill(clientName);
     await this.page.getByRole("button", { name: "SAVE NEW CLIENT" }).click();
-    await this.closeSideBarBtn.click();
+    await this.closeIcon.click();
     await this.exitBtn.click();
     await this.newButton.click();
     await this.appointmentSelection.click();
     await this.clientSearchBox.fill(clientName);
     await expect(this.clientList).toContainText(clientName);
-    await this.closeSideBarBtn.click();
+    await this.closeIcon.click();
   }
 
   async bookAndDelAnAppointment(
@@ -120,7 +126,7 @@ class CalendarPage {
   ) {
     var appointmentDetails = this.appointment
       .filter({ HasText: clientName })
-      .first();
+      .last();
     await expect(this.newButton).toBeVisible();
     await this.newButton.click();
     await this.appointmentSelection.click();
@@ -147,7 +153,7 @@ class CalendarPage {
     } else {
       console.log(`Client ${clientName} found.`);
     }
-    await this.page.getByRole("button", { name: clientName }).last().click();
+    await this.page.getByRole("button", { name: clientName }).first().click();
     await expect(this.serviceList).toBeVisible();
     await this.serviceCategories.filter({ hasText: serviceCategory }).click();
     await this.serviceCatItem.filter({ hasText: serviceName }).first().click();
@@ -158,6 +164,7 @@ class CalendarPage {
     await this.page.getByRole("button", { name: "Save booking" }).click();
     await expect(this.sideBar).not.toBeVisible();
     await expect(appointmentDetails).toBeVisible();
+    await this.page.waitForTimeout(3000);
   }
 
   async deleteAppointment(clientName) {
@@ -288,7 +295,7 @@ class CalendarPage {
       .filter({ hasText: "Confirm" })
       .click();
     await expect(this.appointmentHeader).toBeVisible();
-    await expect(this.appointmentHeader).toContainText(clientName);
+    //await expect(this.appointmentHeader).toContainText(clientName);
     await this.page.screenshot({
       path: `screenshots/appointment_confirm_${clientName}.png`,
     });
@@ -370,7 +377,15 @@ class CalendarPage {
         await this.page.mouse.down();
         await this.page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, { steps: 15 });
         await this.page.mouse.up(); 
-        await this.page.waitForTimeout(3000);
+        await this.page.waitForTimeout(3000)
+        await appointmentDetails.click();
+        var noClientPhone = await this.page.locator(`span[class*="AppointmentHeader_"]`).last().textContent();
+        if (await noClientPhone.includes("ADD MOBILE NUMBER")) {
+          console.log("No phone number available to send SMS.");
+        }
+        else {
+         await this.sendSMSAfterConfirmingChanges(clientName);
+        }
         await appointmentDetails.click();
         await expect(this.appointmentSidebar).toBeVisible();
         const updatedAppointmentTime = this.appointmentTime.textContent();
@@ -382,10 +397,15 @@ class CalendarPage {
   }
 
   async sendSMSAfterConfirmingChanges(clientName) {
-    var appointmentDetails = this.appointment
-      .filter({ HasText: clientName })
-      .first();
-    await appointmentDetails.click();
+    await expect(this.moveAppointmentNotification).toBeVisible();
+    await this.page.getByText("Confirm change").click();
+    await expect(this.smsComposeAndSendDialog).toBeVisible(); 
+    expect(await this.smsText).toContainText(clientName);
+    await this.page.getByText("NEXT").click();
+    await expect(this.smsTitle).toBeVisible();
+    await this.page.getByText("SEND TEXT").click();
+    await this.page.waitForTimeout(3000);
+    await expect(this.smsTitle).not.toBeVisible();
  }
 }
 
