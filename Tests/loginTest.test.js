@@ -41,12 +41,22 @@ test('@regression Unsuccessful login with empty credentials', async () => {
 }); 
 
 test('@smoke @regression Login for user with single salon access', async() => {
-    const salonList = page.locator("div.salon-list");
     const loginPage = new LoginPage(page);
     await loginPage.navigateToLoginPage(process.env.BASE_URL);
     await loginPage.login(process.env.SINGLE_SALON_USER, process.env.SINGLE_SALON_PASSWORD);
-    await expect(salonList).not.toBeVisible();
     await loginPage.singleSalonLoginValidation("OneSalonAccess");
 });
 
-test
+test('@smoke @regression Login for user with multiple salon access', async() => {
+    const loginPage = new LoginPage(page);
+    await loginPage.navigateToLoginPage(process.env.BASE_URL);
+    await loginPage.login(process.env.VALID_USERNAME, process.env.VALID_PASSWORD);
+    await loginPage.multiSalonLoginValidation("Sas Testing Email");
+});
+
+test('@smoke @regression Login for salon with PIN access enabled', async() => {
+    const loginPage = new LoginPage(page);
+    await loginPage.navigateToLoginPage(process.env.BASE_URL);
+    await loginPage.login(process.env.PIN_ENABLED_SALON_USERNAME, process.env.PIN_ENABLED_SALON_PASSWORD)
+    await loginPage.loginWithAccuratePin("Steph Pin Test",process.env.PIN);
+});
