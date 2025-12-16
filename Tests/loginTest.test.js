@@ -58,5 +58,12 @@ test('@smoke @regression Login for salon with PIN access enabled', async() => {
     const loginPage = new LoginPage(page);
     await loginPage.navigateToLoginPage(process.env.BASE_URL);
     await loginPage.login(process.env.PIN_ENABLED_SALON_USERNAME, process.env.PIN_ENABLED_SALON_PASSWORD)
-    await loginPage.loginWithAccuratePin("Steph Pin Test",process.env.PIN);
+    await loginPage.loginWithAccuratePin("QA_Pin_TestSalon-DoNotUse",process.env.PIN);
+});
+
+test('@smoke @regression Login failure for salon with PIN access enabled with wrong pin', async() => {
+    const loginPage = new LoginPage(page);
+    await loginPage.navigateToLoginPage(process.env.BASE_URL);
+    await loginPage.login(process.env.PIN_ENABLED_SALON_USERNAME, process.env.PIN_ENABLED_SALON_PASSWORD)
+    await loginPage.loginWithInaccuratePin("QA_Pin_TestSalon-DoNotUse","1234");
 });

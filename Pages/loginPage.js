@@ -91,7 +91,26 @@ class LoginPage {
     await expect(this.salonName).toHaveText(salonIdentifier);
   }
 
-  
+  async loginWithInaccuratePin(salonIdentifier, pin){
+    const incorrectPinError = this.page.locator("div.PinForm_error__iY116");
+   await expect(this.salonList).toBeVisible();
+
+    await this.salonSearchbox.fill(salonIdentifier);
+    await this.page
+      .getByRole("button", { name: salonIdentifier })
+      .first()
+      .click();
+    await expect(this.pinCodePanel).toBeVisible();
+
+    for (const ch of pin) {
+      await this.page.getByRole("button", { name: ch.toString() }).click();
+
+      await this.page.waitForTimeout(100);
+    }
+
+    await expect(incorrectPinError).toHaveText("Please enter a valid 4 digit pin code");
+  }
+
 }
 
 module.exports = LoginPage;
